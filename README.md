@@ -1,32 +1,62 @@
-RRD-to-CSV
-==========
+# RRD-to-CSV
 
-Quick and dirty Perl scripts that I use when dealing with RRD data.
+Simple quick and dirty scripts to convert RRD to CSV. Slightly improved version of [github.com/mscoutermarsh/RRD-to-CSV](https://github.com/mscoutermarsh/RRD-to-CSV).
 
-Useful if you need to get some RRD data into excel for analysis.
+## Usage
 
-Must have RRDtool installed.
+The conversion is done in two steps:
 
-massRRDDump.pl
---------------
-USAGE: perl massRRDDump.pl
+### .rrd -> .xml
 
-Runs rrdtool dump on each .rrd file in the current directory.
+First you need to convert .rrd files to .xml. You can either convert one file by rrdtool directly:
 
-massXMLConvert.pl
---------------
-USAGE: perl massXMLConvert.pl
+```bash
+$ rrdtool dump cpu-user.rrd cpu-user.xml
+```
 
-Uses convert.pl to convert each XML file in the current directory to .csv
+or use **rrdToXml.pl** script which converts **all** .rrd files in current directory:
 
-convert.pl
---------------
-USAGE: perl convert.pl
+```bash
+$ ls -1
+rrdToXml.pl
+test1.rrd
+test2.rrd
+$ perl rrdToXml.pl
+$ ls -1
+rrdToXml.pl
+test1.rrd
+test1.xml
+test2.rrd
+test2.xml
+```
 
-Grabs all of the daily average data, converts to CSV.
+### .xml -> .csv
 
-USAGE: perl convert.pl testinput.xml > output.csv
+To convert 1 file use **convert.pl**:
 
-## Help
+```bash
+$ perl convert.pl cpu-user.xml > test.csv
+```
 
-Tweet: [@mscccc](https://twitter.com/mscccc)
+To convert all files in current directory:
+
+```bash
+$ perl xml-to-csv.pl
+```
+
+# Troubleshooting
+
+Before converting XMLs to CSVs, check out the number of datasource you're using:
+
+```xml
+$ grep -m 1 '<row>' test.xml
+                        <!-- 2017-11-15 08:01:20 EST / 1510750880 --> <row><v>9.0000000000e-02</v></row>
+```
+
+If you have more than one `v` element you will need to change the last if statement in **convert.pl** script by capturing all those elements and printing them to the file. So if you have 2 `v` elements the if statement will look following way:
+
+```perl
+if ($line =~ m/<v>([\de\+\-\.]*)<\/v><v>([\de\+\-\.]*)<\/v>/) {
+  print "$date,$1,$2\n";
+}
+```
