@@ -3,9 +3,9 @@
 
 my $inputFile = "<" . $ARGV[0];
 
-print "timestamp,value\n";
-
 my $inAverage = 0;
+
+my $isFirstLine = 1;
 
 # open xml file... read Line by Line
 open(MYINPUTFILE, $inputFile);
@@ -23,10 +23,26 @@ while (<MYINPUTFILE>) {
 
     if ($inAverage) {
         if ($line =~ m/\s[A-Z]{3}\s\/\s(\d{10})\s/) {
-            my $date = $1;
-            # if you have more than one datasource, capture them here
-            if ($line =~ m/<v>([\de\+\-\.]*)<\/v>/) {
-                print "$date,$1\n";
+            # add header with column names
+            if ($isFirstLine) {
+                print 'timestamp';
+                my @numOfDs = $line =~ m/<v>/g;
+                for (my $i=0; $i < @numOfDs; $i++) {
+                    print ",value", $i+1;
+                }
+                print "\n";
+                $isFirstLine = 0;
+            }
+
+            my $timestamp = $1;
+            if ($line =~ m/<row>(.*)<\/row>/) {
+                print $timestamp;
+                my @values = split /(?<=>)(?=<)/, $1;
+                foreach my $val (@values) {
+                    my @m = $val =~ m/<v>([\de\+\-\.]*)<\/v>/;
+                    print ",@m";
+                }
+                print "\n";
             }
         }
     }

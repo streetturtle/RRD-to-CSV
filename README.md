@@ -2,6 +2,19 @@
 
 Simple quick and dirty scripts to convert RRD to CSV. Slightly improved version of [github.com/mscoutermarsh/RRD-to-CSV](https://github.com/mscoutermarsh/RRD-to-CSV).
 
+Example of the CSV file:
+
+```csv
+timestamp,value1
+1339261200,3.4020448525e+07
+1339261500,1.8406509015e+07
+1339261800,1.3551101702e+07
+1339262100,1.0942669565e+07
+1339262400,8.9584420948e+06
+1339262700,1.0100165465e+07
+...
+```
+
 ## Usage
 
 The conversion is done in two steps:
@@ -42,21 +55,4 @@ To convert all files in current directory:
 
 ```bash
 $ perl xml-to-csv.pl
-```
-
-# Troubleshooting
-
-Before converting XMLs to CSVs, check out the number of datasource you're using:
-
-```xml
-$ grep -m 1 '<row>' test.xml
-                        <!-- 2017-11-15 08:01:20 EST / 1510750880 --> <row><v>9.0000000000e-02</v></row>
-```
-
-If you have more than one `v` element you will need to change the last if statement in **convert.pl** script by capturing all those elements and printing them to the file. So if you have 2 `v` elements the if statement will look following way:
-
-```perl
-if ($line =~ m/<v>([\de\+\-\.]*)<\/v><v>([\de\+\-\.]*)<\/v>/) {
-  print "$date,$1,$2\n";
-}
 ```
