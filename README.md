@@ -14,6 +14,9 @@ timestamp,value1
 1339262700,1.0100165465e+07
 ...
 ```
+Features:
+
+ - Automatically detects number of datasources;
 
 ## Usage
 
